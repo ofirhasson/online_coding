@@ -5,5 +5,4 @@
         "esModuleInterop": true,
         "removeComments": true
     },
-    "include": ["**/*.ts"],
 }

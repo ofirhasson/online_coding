@@ -39,13 +39,8 @@ class App {
 
     }
 
-    public async handler(req: any, res: any) {
-        // Handle request here if needed
-        return { "dummy": "data"};
-    }
-
 }
 
 const app = new App();
 app.start();
-export default app.handler;
+
