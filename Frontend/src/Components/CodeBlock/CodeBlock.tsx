@@ -29,12 +29,13 @@ const style = {
 export function CodeBlock(): JSX.Element {
 
     const [codeBlock, setCodeBlock] = useState<CodeBlockModel>(null);
+    const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
     const [user, setUser] = useState<UserModel>(() => {
         // Retrieve user data from session storage if available
         const savedUser = sessionStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
-    
+
     //handle mui modal
     const [openModal, setOpenModal] = useState<boolean>(false);
 
@@ -58,7 +59,7 @@ export function CodeBlock(): JSX.Element {
         codeBlockRef.current = codeBlock;
     }, [codeBlock]);
 
-    //save the last user
+    //save the last user 
     useEffect(() => {
         userRef.current = user;
         // Save user data to session storage whenever it changes
@@ -66,7 +67,6 @@ export function CodeBlock(): JSX.Element {
     }, [user]);
 
     useEffect(() => {
-
         socketService.connect((message: MessageModel) => {
 
             //update the codeBlock to the updates one from server
@@ -106,14 +106,26 @@ export function CodeBlock(): JSX.Element {
 
     }, [])
 
-    //when code changes send the new code to server 
+    // When code changes send the new code to server after stopped typing
     function handleCodeMirrorChange(value: string): void {
-        const message = new MessageModel();
-        message.codeBlock = codeBlock;
-        message.newCode = value;
-        socketService.sendCode(message);
-    }
 
+        // Clear the previous timeout
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        // Set a new timeout
+        const newTimeoutId = setTimeout(() => {
+            if (user?.role !== RoleModel.Mentor) {
+                const message = new MessageModel();
+                message.codeBlock = codeBlock;
+                message.newCode = value;
+                socketService.sendCode(message);
+            }
+        }, 500);
+
+        setTimeoutId(newTimeoutId);
+    }
     return (
         <div className="CodeBlock">
             <div>

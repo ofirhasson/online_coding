@@ -21,17 +21,20 @@ class SocketService {
             //server listen to code message - new code has been entered
             socket.on("code", async (message: MessageModel) => {
                 //update the codeBlock
-                const newCodeBlock = await CodeBlockModel.findById(message.codeBlock._id).populate('members');
-                newCodeBlock.writtenCode = message.newCode;
-                newCodeBlock.save();
-
-                //update message
-                message.codeBlock = newCodeBlock;
-                if (message.newCode === newCodeBlock.solution)
-                    message.isCorrectSolution = true;
-
-                //send updated message to client
-                socketServer.sockets.emit("code", message);
+                if(message.newCode && message.codeBlock)
+                {
+                    const newCodeBlock = await CodeBlockModel.findById(message?.codeBlock?._id).populate('members');
+                    newCodeBlock.writtenCode = message.newCode;
+                    newCodeBlock.save();
+    
+                    //update message
+                    message.codeBlock = newCodeBlock;
+                    if (message.newCode === newCodeBlock.solution)
+                        message.isCorrectSolution = true;
+    
+                    //send updated message to client
+                    socketServer.sockets.emit("code", message);
+                }
             });
 
             //server listen to join message - new user has been joined
