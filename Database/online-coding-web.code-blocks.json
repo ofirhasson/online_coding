@@ -1,0 +1,40 @@
+[{
+  "_id": {
+    "$oid": "669e9e2ad253381d57f2c308"
+  },
+  "title": "array find()",
+  "initialCode": "//Write a function that finds a number in the array.\nfunction findValue(arr:number[],value:number):number{\n\n}",
+  "solution": "//Write a function that finds a number in the array.\nfunction findValue(arr:number[],value:number):number{\nreturn arr.find(v => v === value)\n}",
+  "members": [],
+  "writtenCode": "//Write a function that finds a number in the array.\nfunction findValue(arr:number[],value:number):number{\n\n}"
+},
+{
+  "_id": {
+    "$oid": "669e9e3bd253381d57f2c30a"
+  },
+  "title": "array findIndex()",
+  "initialCode": "//Write a function that finds the index of a number in the array.\nfunction findIndexValue(arr:number[],value:number):number{\n\n}",
+  "solution": "//Write a function that finds the index of a number in the array.\nfunction findIndexValue(arr:number[],value:number):number{\nreturn arr.findIndex(v => v === value)\n}",
+  "members": [],
+  "writtenCode": null
+},
+{
+  "_id": {
+    "$oid": "669e9e46d253381d57f2c30c"
+  },
+  "title": "string replace()",
+  "initialCode": "//Write a function that replaces the a with b in string\nfunction replaceAwithB(str:string):string{\n\n}",
+  "solution": "//Write a function that replaces the a with b in string\nfunction replaceAwithB(str:string):string{\nreturn str.replace(\"a\",\"b\")\n}",
+  "members": [],
+  "writtenCode": null
+},
+{
+  "_id": {
+    "$oid": "669e9e50d253381d57f2c30e"
+  },
+  "title": "string includes()",
+  "initialCode": "//Write a function that checks if a value includes in string\nfunction replaceAwithB(str:string,value:string):string{\n\n}",
+  "solution": "//Write a function that checks if a value includes in string\nfunction replaceAwithB(str:string,value:string):boolean{\nreturn str.includes(value)\n}",
+  "members": [],
+  "writtenCode": null
+}]

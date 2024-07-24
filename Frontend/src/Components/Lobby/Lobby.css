@@ -1,0 +1,40 @@
+.Lobby {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.Lobby > div:first-of-type {
+    flex: 0 0 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 80px;
+    font-weight: bold;
+}
+
+.input-container {
+    flex: 0 0 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-container input {
+    margin-bottom: 10px;
+}
+
+.error-message {
+    color: red;
+    margin: 0;
+    text-align: center;
+}
+
+.Lobby > div:last-of-type {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin-top: 50px;
+    flex-direction: column;
+    gap: 20px;
+}

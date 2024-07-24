@@ -1,0 +1,17 @@
+html,
+body,
+#root {
+    margin: 0;
+    height: 100%;
+    background-image: url("../src/Assets/Images/realistic-3d-squares-geometric-background_23-2149151739.jpg");
+}
+
+button{
+    width: 40%;
+    height: 50px;
+    background-color: green;
+    color: white;
+    border: 2px solid black;
+    border-radius: 20px;
+    font-size: x-large;
+}
