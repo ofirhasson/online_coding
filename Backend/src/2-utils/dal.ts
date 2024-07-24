@@ -7,7 +7,7 @@ class DAL {
     public async connect(): Promise<void> {
         try {
             const db = await mongoose.connect(appConfig.mongodbConnectionString, {
-                serverSelectionTimeoutMS: 50000 // Increase timeout to 50 seconds
+                serverSelectionTimeoutMS: 50000 // Increase timeout to 50 second
             });
             console.log(`We're connected to MongoDB, database: ${db.connections[0].name}`);
         }
