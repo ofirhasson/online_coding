@@ -1,6 +1,7 @@
 import { Socket, io } from "socket.io-client";
 import CodeBlockModel from "../Models/CodeBlockModel";
 import { MessageModel } from "../Models/MessageModel";
+import { appConfig } from "../Utils/app-config";
 
 class SocketService {
 
@@ -9,7 +10,7 @@ class SocketService {
     public connect(callback?: Function): void {
 
         //Client connect to server:
-        this.socket = io("http://localhost:4000");
+        this.socket = io(appConfig.backendUrl);
 
         //Client listens to server messages
         this.socket.on("code", (message: MessageModel) => {
