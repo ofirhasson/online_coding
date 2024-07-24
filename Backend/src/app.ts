@@ -36,9 +36,15 @@ class App {
 
         //run sockets:
         socketService.handleSocketMessages(httpServer);
+
+    }
+
+    public async handler(req: any, res: any) {
+        // Handle request here if needed
     }
 
 }
 
 const app = new App();
 app.start();
+export default app.handler;
