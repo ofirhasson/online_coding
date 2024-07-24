@@ -41,6 +41,7 @@ class App {
 
     public async handler(req: any, res: any) {
         // Handle request here if needed
+        return { "dummy": "data"};
     }
 
 }
