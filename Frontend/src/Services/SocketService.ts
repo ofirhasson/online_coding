@@ -37,9 +37,18 @@ class SocketService {
         this.socket?.emit("join", message);
     }
     //Client send disconnection message to server:
-    public disconnect(message: MessageModel): void {
-        this.socket?.emit("disconnection", message);
-        this.socket?.disconnect();
+    public disconnect(message: MessageModel): Promise<void> {
+        return new Promise((resolve, reject) => {
+            // Emit the disconnection message and provide a callback for acknowledgment
+            this.socket?.emit("disconnection", message, (response: any) => {
+                if (response.success) {
+                    this.socket?.disconnect();
+                    resolve();
+                } else {
+                    reject(new Error('Disconnection failed'));
+                }
+            });
+        });
     }
 
 }

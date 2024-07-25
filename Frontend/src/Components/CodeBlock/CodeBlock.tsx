@@ -128,6 +128,8 @@ export function CodeBlock(): JSX.Element {
 
             message.codeBlock = codeBlockRef.current;
             message.user = userRef.current;
+            if(userRef.current.role === RoleModel.Mentor)
+                message.isMentorDisconnect = true;
             console.log("Message prepared for disconnect:", message);
 
             socketService.disconnect(message);

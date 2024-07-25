@@ -79,7 +79,7 @@ class SocketService {
             });
 
             //server listen to disconnection message - user has been disconnect
-            socket.on("disconnection", async (message: MessageModel) => {
+            socket.on("disconnection", async (message: MessageModel,callback) => {
 
                 console.log("disconnection message",message);
 
@@ -110,6 +110,8 @@ class SocketService {
                     message.codeBlock = newCodeBlock;
                     //send updated message to client
                     socketServer.sockets.emit("disconnection", message);
+
+                    callback({ success: true });
                 }
             });
 
