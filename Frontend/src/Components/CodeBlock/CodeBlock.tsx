@@ -67,35 +67,52 @@ export function CodeBlock(): JSX.Element {
     }, [user]);
 
     useEffect(() => {
-        socketService.connect((message: MessageModel) => {
+        const handleCodeMessage = (message: MessageModel) => {
 
-            //update the codeBlock to the updates one from server
+            // Handle code message
             if (params._id === message.codeBlock._id)
-                setCodeBlock(message.codeBlock);
+                setCodeBlock(prevCodeBlock => ({
+                    ...prevCodeBlock,
+                    writtenCode: message.codeBlock.writtenCode
+                }));
 
-            //if we got user from server and we not have one , set the new user
-            if (message?.user && !userRef.current)
-                setUser(message?.user);
-
-            //if mentor disconnects from our codeBlock
-            if (message?.isMentorDisconnect && message?.codeBlock?._id === codeBlockRef.current._id) {
-                navigate(`/lobby`);
-            }
-
-            //if we got solution in our codeBlock
-            if (message?.isCorrectSolution && message?.codeBlock?._id === codeBlockRef.current._id) {
+            if (message?.isCorrectSolution && message?.codeBlock?._id === codeBlockRef?.current?._id) {
                 setOpenModal(true);
                 setTimeout(() => { setOpenModal(false) }, 2000)
             }
+        };
 
-        });
+        const handleJoinMessage = (message: MessageModel) => {
+            // Handle join message
+            if (params._id === message.codeBlock._id)
+                setCodeBlock(message.codeBlock);
+
+            if (message?.user && !userRef.current) {
+                setUser(message?.user);
+            }
+
+        };
+
+        const handleDisconnectionMessage = (message: MessageModel) => {
+            if (params._id === message.codeBlock._id)
+                setCodeBlock(message.codeBlock);
+            // Handle disconnection message
+            if (message?.isMentorDisconnect && message?.codeBlock?._id === codeBlockRef?.current?._id) {
+                navigate(`/lobby`);
+            }
+        };
+
+        socketService.connectToCode(handleCodeMessage);
+        socketService.connectToJoin(handleJoinMessage);
+        socketService.connectToDisconnection(handleDisconnectionMessage);
 
         //get initial codeBlock from HTTP request
-        codeBlocksService.getOneCodeBlock(params._id)
-            .then(c => { setCodeBlock(c) })
-            .catch(err => notify.error(err))
+        if (!codeBlock)
+            codeBlocksService.getOneCodeBlock(params._id)
+                .then(c => { setCodeBlock(c) })
+                .catch(err => notify.error(err))
 
-        //when component unMount disconnect from socket
+        //when component unMount , disconnect from socket
         return () => {
             const message = new MessageModel();
             sessionStorage.removeItem("user");

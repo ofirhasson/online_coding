@@ -1,6 +1,6 @@
 import { Server as HttpServer } from "http";
 import { Socket, Server as SocketServer } from "socket.io";
-import { CodeBlockModel, ICodeBlockModel } from "../3-models/code-block-model";
+import { CodeBlockModel } from "../3-models/code-block-model";
 import { MessageModel } from "../3-models/MessageModel";
 import { RoleModel } from "../3-models/role-model";
 import { UserModel } from "../3-models/UserModel";
@@ -16,22 +16,28 @@ class SocketService {
         //create socket server:
         const socketServer = new SocketServer(httpServer, options);
 
+        const normalizeCode = (code: string) => {
+            return code.replace(/\s+/g, '');
+        };
+
         socketServer.sockets.on("connection", (socket: Socket) => {
 
             //server listen to code message - new code has been entered
             socket.on("code", async (message: MessageModel) => {
                 //update the codeBlock
-                if(message.newCode && message.codeBlock)
-                {
+                if (message.newCode && message.codeBlock) {
                     const newCodeBlock = await CodeBlockModel.findById(message?.codeBlock?._id).populate('members');
                     newCodeBlock.writtenCode = message.newCode;
                     newCodeBlock.save();
-    
-                    //update message
-                    message.codeBlock = newCodeBlock;
-                    if (message.newCode === newCodeBlock.solution)
+
+                    // Normalize both newCode and solution for comparison
+                    const normalizedNewCode = normalizeCode(message.newCode);
+                    const normalizedSolution = normalizeCode(newCodeBlock.solution);
+
+                    if (normalizedNewCode === normalizedSolution) {
                         message.isCorrectSolution = true;
-    
+                    }
+
                     //send updated message to client
                     socketServer.sockets.emit("code", message);
                 }
@@ -74,12 +80,16 @@ class SocketService {
 
             //server listen to disconnection message - user has been disconnect
             socket.on("disconnection", async (message: MessageModel) => {
+
+                console.log("disconnection message",message);
+
                 //check if the user exit from his codeBlock
                 if (message?.user?.codeBlockId === message?.codeBlock?._id) {
 
                     const newCodeBlock = await CodeBlockModel.findById(message?.codeBlock?._id).populate('members');
-                    newCodeBlock.writtenCode = null;
-
+                    if(newCodeBlock.writtenCode)
+                        newCodeBlock.writtenCode = null;
+   
                     //if student disconnects pull only him from members
                     if (message?.user?.role === RoleModel.Student) {
                         const userIndex = newCodeBlock.members.findIndex(m => m === message.user._id);
@@ -93,6 +103,9 @@ class SocketService {
                         message.isMentorDisconnect = true;
                     }
                     newCodeBlock.save();
+
+                    console.log(newCodeBlock);
+                    
                     //update message
                     message.codeBlock = newCodeBlock;
                     //send updated message to client

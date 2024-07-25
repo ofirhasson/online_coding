@@ -32,7 +32,7 @@ export function Lobby(): JSX.Element {
         setError(null);
 
         //build and send join message to the server
-        socketService.connect();
+        socketService.connectToJoin();
         const message = new MessageModel();
         message.codeBlock = new CodeBlockModel();
         message.user = new UserModel();

@@ -7,26 +7,25 @@ class SocketService {
 
     private socket: Socket;
 
-    public connect(callback?: Function): void {
-
-        //Client connect to server:
+    public connectToCode(callback?: Function): void {
         this.socket = io(appConfig.backendUrl);
-
-        //Client listens to server messages
         this.socket.on("code", (message: MessageModel) => {
-            if (callback)
-                callback(message);
+            if (callback) callback(message);
         });
+    }
 
+    public connectToJoin(callback?: Function): void {
+        this.socket = io(appConfig.backendUrl);
         this.socket.on("join", (message: MessageModel) => {
-            if (callback)
-                callback(message);
+            if (callback) callback(message);
         });
-        this.socket.on("disconnection", (message: MessageModel) => {
-            if (callback)
-                callback(message);
-        });
+    }
 
+    public connectToDisconnection(callback?: Function): void {
+        this.socket = io(appConfig.backendUrl);
+        this.socket.on("disconnection", (message: MessageModel) => {
+            if (callback) callback(message);
+        });
     }
 
     //Client send code message to server:
