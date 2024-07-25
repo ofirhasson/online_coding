@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/static/css/main.b6f41d2b.css",
-    "main.js": "/static/js/main.0e587b94.js",
+    "main.js": "/static/js/main.495ff7c5.js",
     "static/js/787.d271e5d9.chunk.js": "/static/js/787.d271e5d9.chunk.js",
     "static/media/realistic-3d-squares-geometric-background_23-2149151739.jpg": "/static/media/realistic-3d-squares-geometric-background_23-2149151739.639366b433c0dc532af1.jpg",
     "index.html": "/index.html",
     "main.b6f41d2b.css.map": "/static/css/main.b6f41d2b.css.map",
-    "main.0e587b94.js.map": "/static/js/main.0e587b94.js.map",
+    "main.495ff7c5.js.map": "/static/js/main.495ff7c5.js.map",
     "787.d271e5d9.chunk.js.map": "/static/js/787.d271e5d9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b6f41d2b.css",
-    "static/js/main.0e587b94.js"
+    "static/js/main.495ff7c5.js"
   ]
 }

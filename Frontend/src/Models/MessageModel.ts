@@ -7,4 +7,5 @@ export class MessageModel {
     user: UserModel;
     isMentorDisconnect: boolean;
     isCorrectSolution: boolean;
+    typedUserId:string;
 }
