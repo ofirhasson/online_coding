@@ -37,6 +37,8 @@ export function CodeBlock(): JSX.Element {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [newCode, setNewCode] = useState<string>("");
+    const [isUserInput, setIsUserInput] = useState<boolean>(false);
+    const [isServerUpdate, setIsServerUpdate] = useState<boolean>(false);
 
     //handle mui modal
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -71,16 +73,19 @@ export function CodeBlock(): JSX.Element {
     useEffect(() => {
         const handleCodeMessage = (message: MessageModel) => {
             console.log("code message", message);
-            console.log(message.typedUserId , userRef?.current?._id);
-            
+            console.log(message.typedUserId, userRef?.current?._id);
+            console.log(((message.typedUserId === userRef?.current?._id && newCode === message.newCode)
+                || message.typedUserId !== userRef?.current?._id || !message.typedUserId));
 
-            if (params._id === message.codeBlock._id && 
-                ((message.typedUserId === userRef?.current?._id && newCode === message.newCode) || message.typedUserId !== userRef?.current?._id)) {
+
+            if (params._id === message.codeBlock._id &&
+                ((message.typedUserId === userRef?.current?._id && newCode === message.newCode)
+                    || message.typedUserId !== userRef?.current?._id || !message.typedUserId)) {
+                setIsServerUpdate(true);
                 setCodeBlock(prevCodeBlock => ({
                     ...prevCodeBlock,
                     writtenCode: message.codeBlock.writtenCode
                 }));
-                // setIsReadOnly(false); // Make CodeMirror editable again
             }
 
             if (message?.isCorrectSolution && message?.codeBlock?._id === codeBlockRef?.current?._id) {
@@ -128,7 +133,7 @@ export function CodeBlock(): JSX.Element {
 
             message.codeBlock = codeBlockRef.current;
             message.user = userRef.current;
-            if(userRef.current.role === RoleModel.Mentor)
+            if (userRef.current.role === RoleModel.Mentor)
                 message.isMentorDisconnect = true;
             console.log("Message prepared for disconnect:", message);
 
@@ -140,7 +145,7 @@ export function CodeBlock(): JSX.Element {
 
     // When code changes send the new code to server after stopped typing
     function handleCodeMirrorChange(editor: Editor, value: string): void {
-        // setIsReadOnly(true);
+        setIsUserInput(true);
         setNewCode(value);
         // Clear the previous timeout
         if (timeoutId) {
@@ -156,6 +161,7 @@ export function CodeBlock(): JSX.Element {
                 message.typedUserId = user?._id;
                 socketService.sendCode(message);
             }
+            setIsUserInput(false);
         }, 500);
 
         setTimeoutId(newTimeoutId);
@@ -208,6 +214,7 @@ export function CodeBlock(): JSX.Element {
                         if (codeBlock) {
                             setCodeBlock({ ...codeBlock, writtenCode: value });
                         }
+                        setIsServerUpdate(false);
                     }}
                     options={{
                         mode: 'javascript',
@@ -216,7 +223,9 @@ export function CodeBlock(): JSX.Element {
                         readOnly: user?.role === RoleModel.Mentor ? true : false
                     }}
                     onChange={(editor, data, value) => {
-                        handleCodeMirrorChange(editor, value);
+                        if (!isServerUpdate) {
+                            handleCodeMirrorChange(editor, value);
+                        }
                     }}
                 />
             </div>
