@@ -4,7 +4,6 @@ import { appConfig } from "./2-utils/app-config";
 import { dal } from "./2-utils/dal";
 import { socketService } from "./5-services/socket-service";
 import { codeBlocksRouter } from "./6-controllers/code-blocks-controller";
-import { usersRouter } from "./6-controllers/users-controller";
 import { errorsMiddleware } from "./4-middleware/errors-middleware";
 
 // Main application class:
@@ -20,7 +19,7 @@ class App {
         this.server.use(cors());
 
         // Connect any controller route to the server:
-        this.server.use("/api", codeBlocksRouter, usersRouter);
+        this.server.use("/api", codeBlocksRouter);
 
         // Route not found middleware: 
         this.server.use(errorsMiddleware.routeNotFound);

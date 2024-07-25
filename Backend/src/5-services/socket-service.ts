@@ -16,6 +16,7 @@ class SocketService {
         //create socket server:
         const socketServer = new SocketServer(httpServer, options);
 
+        //deletes all spaces,tabs or \n from strings
         const normalizeCode = (code: string) => {
             return code.replace(/\s+/g, '');
         };
@@ -24,7 +25,7 @@ class SocketService {
 
             //server listen to code message - new code has been entered
             socket.on("code", async (message: MessageModel) => {
-                //update the codeBlock
+                
                 if (message.newCode && message.codeBlock) {
                     const newCodeBlock = await CodeBlockModel.findById(message?.codeBlock?._id).populate('members');
                     newCodeBlock.writtenCode = message.newCode;
@@ -46,7 +47,6 @@ class SocketService {
             //server listen to join message - new user has been joined
             socket.on("join", async (message: MessageModel) => {
                 if (message.codeBlock) {
-
                     const newCodeBlock = await CodeBlockModel.findById(message.codeBlock._id);
 
                     //create new user
@@ -81,8 +81,6 @@ class SocketService {
             //server listen to disconnection message - user has been disconnect
             socket.on("disconnection", async (message: MessageModel,callback) => {
 
-                console.log("disconnection message",message);
-
                 //check if the user exit from his codeBlock
                 if (message?.user?.codeBlockId === message?.codeBlock?._id) {
 
@@ -94,7 +92,7 @@ class SocketService {
                         newCodeBlock.members.splice(userIndex, 1);
                         await UserModel.findByIdAndDelete(message?.user?._id);
                     }
-                    //if mentor disconnects pull everyone from members
+                    //if mentor disconnects pull everyone from members and delete the written code
                     else if (message?.user?.role === RoleModel.Mentor) {
                         if(newCodeBlock.writtenCode)
                             newCodeBlock.writtenCode = null;
@@ -104,14 +102,13 @@ class SocketService {
                         message.isMentorDisconnect = true;
                     }
                     newCodeBlock.save();
-
-                    console.log(newCodeBlock);
                     
                     //update message
                     message.codeBlock = newCodeBlock;
                     //send updated message to client
                     socketServer.sockets.emit("disconnection", message);
 
+                    //used to make sure that this code will happen before socket disconnects
                     callback({ success: true });
                 }
             });
@@ -120,12 +117,8 @@ class SocketService {
             socket.on("disconnect", () => {
                 console.log("client has been disconnected.");
             });
-
         })
-
-
     }
-
 }
 
 export const socketService = new SocketService();

@@ -2,7 +2,7 @@ import { CodeBlockModel, ICodeBlockModel } from "../3-models/code-block-model";
 
 class CodeBlocksService {
     public async getAllCodeBlocks(): Promise<ICodeBlockModel[]> {
-        const codeBlocks = await CodeBlockModel.find().exec();
+        const codeBlocks = await CodeBlockModel.find().populate("members").exec();
         return codeBlocks;
     }
     public async getOneCodeBlock(_id:string): Promise<ICodeBlockModel> {

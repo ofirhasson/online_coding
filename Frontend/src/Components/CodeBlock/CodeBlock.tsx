@@ -30,14 +30,16 @@ const style = {
 export function CodeBlock(): JSX.Element {
 
     const [codeBlock, setCodeBlock] = useState<CodeBlockModel>(null);
+
+    //state that make sure that the code will be sent to server after stopped typing
     const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
     const [user, setUser] = useState<UserModel>(() => {
         // Retrieve user data from session storage if available
         const savedUser = sessionStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [newCode, setNewCode] = useState<string>("");
-    const [isUserInput, setIsUserInput] = useState<boolean>(false);
     const [isServerUpdate, setIsServerUpdate] = useState<boolean>(false);
 
     //handle mui modal
@@ -72,15 +74,14 @@ export function CodeBlock(): JSX.Element {
 
     useEffect(() => {
         const handleCodeMessage = (message: MessageModel) => {
-            console.log("code message", message);
-            console.log(message.typedUserId, userRef?.current?._id);
-            console.log(((message.typedUserId === userRef?.current?._id && newCode === message.newCode)
-                || message.typedUserId !== userRef?.current?._id || !message.typedUserId));
 
-
+            //check if the new code is from the some codeBlock
+            //and if this user typed new code and it is matches the newest code - prevents unnecessarily rendering
+            //or if this user didn't type get the newest code
             if (params._id === message.codeBlock._id &&
                 ((message.typedUserId === userRef?.current?._id && newCode === message.newCode)
                     || message.typedUserId !== userRef?.current?._id || !message.typedUserId)) {
+                //update that the code comes from server and not typing 
                 setIsServerUpdate(true);
                 setCodeBlock(prevCodeBlock => ({
                     ...prevCodeBlock,
@@ -94,8 +95,9 @@ export function CodeBlock(): JSX.Element {
             }
         };
 
+        // Handle join message
         const handleJoinMessage = (message: MessageModel) => {
-            // Handle join message
+
             if (params._id === message.codeBlock._id)
                 setCodeBlock(message.codeBlock);
 
@@ -105,10 +107,12 @@ export function CodeBlock(): JSX.Element {
 
         };
 
+        // Handle disconnection message
         const handleDisconnectionMessage = (message: MessageModel) => {
+
             if (params._id === message.codeBlock._id)
                 setCodeBlock(message.codeBlock);
-            // Handle disconnection message
+
             if (message?.isMentorDisconnect && message?.codeBlock?._id === codeBlockRef?.current?._id) {
                 navigate(`/lobby`);
             }
@@ -126,27 +130,21 @@ export function CodeBlock(): JSX.Element {
 
         //when component unMount , disconnect from socket
         return () => {
-            console.log("Component unmounting, cleaning up...");
             const message = new MessageModel();
             sessionStorage.removeItem("user");
-            console.log("Session storage cleared");
-
             message.codeBlock = codeBlockRef.current;
             message.user = userRef.current;
             if (userRef.current.role === RoleModel.Mentor)
                 message.isMentorDisconnect = true;
-            console.log("Message prepared for disconnect:", message);
-
             socketService.disconnect(message);
-            console.log("Socket disconnected");
         };
-
     }, [])
 
-    // When code changes send the new code to server after stopped typing
+    // When code changes send the new code to server after user stopped typing
     function handleCodeMirrorChange(editor: Editor, value: string): void {
-        setIsUserInput(true);
+        //update the newest typed code
         setNewCode(value);
+
         // Clear the previous timeout
         if (timeoutId) {
             clearTimeout(timeoutId);
@@ -161,7 +159,6 @@ export function CodeBlock(): JSX.Element {
                 message.typedUserId = user?._id;
                 socketService.sendCode(message);
             }
-            setIsUserInput(false);
         }, 500);
 
         setTimeoutId(newTimeoutId);
@@ -214,6 +211,7 @@ export function CodeBlock(): JSX.Element {
                         if (codeBlock) {
                             setCodeBlock({ ...codeBlock, writtenCode: value });
                         }
+                        //before change set server update to false
                         setIsServerUpdate(false);
                     }}
                     options={{
@@ -223,6 +221,7 @@ export function CodeBlock(): JSX.Element {
                         readOnly: user?.role === RoleModel.Mentor ? true : false
                     }}
                     onChange={(editor, data, value) => {
+                        //if user typing
                         if (!isServerUpdate) {
                             handleCodeMirrorChange(editor, value);
                         }
