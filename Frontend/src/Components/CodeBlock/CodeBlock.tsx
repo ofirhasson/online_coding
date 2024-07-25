@@ -114,11 +114,17 @@ export function CodeBlock(): JSX.Element {
 
         //when component unMount , disconnect from socket
         return () => {
+            console.log("Component unmounting, cleaning up...");
             const message = new MessageModel();
             sessionStorage.removeItem("user");
+            console.log("Session storage cleared");
+
             message.codeBlock = codeBlockRef.current;
             message.user = userRef.current;
+            console.log("Message prepared for disconnect:", message);
+
             socketService.disconnect(message);
+            console.log("Socket disconnected");
         };
 
     }, [])
