@@ -87,8 +87,6 @@ class SocketService {
                 if (message?.user?.codeBlockId === message?.codeBlock?._id) {
 
                     const newCodeBlock = await CodeBlockModel.findById(message?.codeBlock?._id).populate('members');
-                    if(newCodeBlock.writtenCode)
-                        newCodeBlock.writtenCode = null;
    
                     //if student disconnects pull only him from members
                     if (message?.user?.role === RoleModel.Student) {
@@ -98,6 +96,9 @@ class SocketService {
                     }
                     //if mentor disconnects pull everyone from members
                     else if (message?.user?.role === RoleModel.Mentor) {
+                        if(newCodeBlock.writtenCode)
+                            newCodeBlock.writtenCode = null;
+                        
                         await UserModel.deleteMany({ _id: { $in: newCodeBlock.members } });
                         newCodeBlock.members = [];
                         message.isMentorDisconnect = true;
